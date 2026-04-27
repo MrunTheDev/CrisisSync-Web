@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incident Details</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="sos-screen">
+        <header>
+            <h1 style="font-size: 20px;">Provide Details</h1>
+        </header>
+
+        <main>
+            <div class="input-group">
+                <label>Room Number</label>
+                <input type="text" id="roomNumber" placeholder="Enter Room No.">
+            </div>
+
+            <div class="input-group">
+                <label>Type of Emergency</label>
+                <select id="incidentType">
+                    <option value="Medical">Medical 🏥</option>
+                    <option value="Fire">Fire 🔥</option>
+                    <option value="Security">Security 🛡️</option>
+                </select>
+            </div>
+
+            <div class="button-container">
+                <button id="sosButton" style="width:120px; height:120px; font-size: 20px;" onclick="submitDetails()">
+                    SUBMIT
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function submitDetails() {
+            const room = document.getElementById('roomNumber').value;
+            if(!room) {
+                alert("Room Number is required!");
+                return;
+            }
+            localStorage.setItem('room', room);
+            window.location.href = "waiting.html";
+        }
+    </script>
+</body>
+</html>
