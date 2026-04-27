@@ -301,20 +301,21 @@ function initQR() {
   if (qrStarted) return;
   qrStarted = true;
   const scanner = new Html5Qrcode("reader");
-  Html5Qrcode.getCameras()
-    .then(devices => {
-      if (!devices || !devices.length) return;
-      scanner.start(
-        devices[0].id,
-        { fps: 10, qrbox: 220 },
-        decoded => {
-          scanner.stop().catch(() => {});
-          document.getElementById("loc").value = decoded;
-          go("scr-sos");
-        }
-      );
-    })
-    .catch(e => console.warn("QR scanner:", e));
+
+  // We use { facingMode: "environment" } to force the back camera on phones
+  scanner.start(
+    { facingMode: "environment" }, 
+    { fps: 10, qrbox: 220 },
+    decoded => {
+      scanner.stop().catch(() => {});
+      document.getElementById("loc").value = decoded;
+      go("scr-sos");
+    }
+  )
+  .catch(e => {
+    console.warn("QR scanner error:", e);
+    qrStarted = false; // Reset so user can try again if it fails
+  });
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
