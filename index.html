@@ -145,7 +145,7 @@
     <div class="field-wrap">
       <label class="field-label">Add a photo (optional)</label>
       <div class="upload-box" onclick="document.getElementById('img-upload').click()">
-        <input type="file" id="img-upload" accept="image/*" hidden onchange="previewImg(this)" />
+        <input type="file" id="img-upload" accept="image/*" capture="environment" hidden onchange="previewImg(this)" />
         <div id="upload-placeholder"><span>📷 Tap to capture or upload photo</span></div>
         <img id="image-preview" src="" alt="" />
       </div>
