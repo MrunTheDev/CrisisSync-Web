@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── HELPER FUNCTIONS ─────────────────────────────────────
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isManagement() {
+      return isAuth() && request.auth.token.role == "Management";
+    }
+
+    function belongsToHotel(hotelId) {
+      return isAuth() && request.auth.token.hotelId == hotelId;
+    }
+
+    function isOwnStaffDoc(staffId) {
+      return isAuth() && request.auth.uid == staffId;
+    }
+
+    // ── INCIDENTS ────────────────────────────────────────────
+    // Guests can create SOS without auth (guest app)
+    // Staff can read + update (acknowledge, etc.)
+    // Management can delete
+    match /incidents/{incidentId} {
+      allow create: if true;
+      allow read:   if isAuth();
+      allow update: if isAuth();
+      allow delete: if isManagement();
+    }
+
+    // ── STAFF ────────────────────────────────────────────────
+    // Staff read/update their own doc
+    // Management reads all staff in hotel
+    // Creation only via registerStaff Cloud Function
+    match /staff/{staffId} {
+      allow read:   if isOwnStaffDoc(staffId) || isManagement();
+      allow update: if isOwnStaffDoc(staffId) || isManagement();
+      allow create: if false;
+      allow delete: if isManagement();
+    }
+
+    // ── HOTELS ───────────────────────────────────────────────
+    match /hotels/{hotelId} {
+      allow read:  if belongsToHotel(hotelId);
+      allow write: if isManagement() && belongsToHotel(hotelId);
+
+      // Predictions — read by staff, written only by Cloud Functions
+      match /predictions/{predId} {
+        allow read:  if belongsToHotel(hotelId);
+        allow write: if false;
+      }
+
+      // Broadcasts audit log — read by staff, written only by Cloud Functions
+      match /broadcasts/{broadcastId} {
+        allow read:  if belongsToHotel(hotelId);
+        allow write: if false;
+      }
+    }
+  }
+}
